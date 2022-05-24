@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
@@ -194,18 +195,13 @@ class PaymentIntents extends BaseGateway
     public function refund(Transaction $transaction): RequestResponseInterface
     {
         $this->configureStripeClient();
-        $currency = Commerce::getInstance()->getCurrencies()->getCurrencyByIso($transaction->paymentCurrency);
-
-        if (!$currency) {
-            throw new NotSupportedException('The currency “' . $transaction->paymentCurrency . '” is not supported!');
-        }
 
         // Are we dealing with a transaction that was created under the previous 'Charge' gateway?
         if (substr($transaction->reference, 0, 3) === "ch_") {
             try {
                 $request = [
                     'charge' => $transaction->reference,
-                    'amount' => $transaction->paymentAmount * (10 ** $currency->minorUnit),
+                    'amount' => $transaction->paymentAmount * (10 ** 2),
                 ];
                 $refund = Refund::create($request);
 
@@ -225,7 +221,7 @@ class PaymentIntents extends BaseGateway
             $charge = $stripePaymentIntent->charges->data[0];
             $refund = Refund::create([
                 'charge' => $charge->id,
-                'amount' => $transaction->paymentAmount * (10 ** $currency->minorUnit),
+                'amount' => $transaction->paymentAmount * (10 ** 2),
             ]);
 
             // Entirely possible there's no payment intent stored locally.

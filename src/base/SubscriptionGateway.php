@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
@@ -157,7 +158,7 @@ abstract class SubscriptionGateway extends Gateway
             return (float)0;
         }
 
-        return $data['plan']['amount'] / (10 ** $currency->minorUnit) . ' ' . $currencyCode;
+        return $data['plan']['amount'] / (10 ** 2) . ' ' . $currencyCode;
     }
 
     /**
@@ -532,7 +533,7 @@ abstract class SubscriptionGateway extends Gateway
     {
         $this->configureStripeClient();
         return new SubscriptionPayment([
-            'paymentAmount' => $data['amount_due'] / (10 ** $currency->minorUnit),
+            'paymentAmount' => $data['amount_due'] / (10 ** 2),
             'paymentCurrency' => $currency,
             'paymentDate' => $data['created'],
             'paymentReference' => $data['charge'],
@@ -772,7 +773,7 @@ abstract class SubscriptionGateway extends Gateway
         $status = $subscriptionData['status'];
 
         switch ($status) {
-            // Somebody didn't manage to provide/authenticate a payment method
+                // Somebody didn't manage to provide/authenticate a payment method
             case 'incomplete_expired':
                 $subscription->isExpired = true;
                 $subscription->dateExpired = $endedAt ? DateTimeHelper::toDateTime($endedAt) : null;
@@ -780,12 +781,12 @@ abstract class SubscriptionGateway extends Gateway
                 $subscription->dateCanceled = null;
                 $subscription->nextPaymentDate = null;
                 break;
-            // Definitely not suspended
+                // Definitely not suspended
             case 'active':
                 $subscription->isSuspended = false;
                 $subscription->dateSuspended = null;
                 break;
-            // Suspend this and make a guess at the suspension date
+                // Suspend this and make a guess at the suspension date
             case 'past_due':
                 $timeLastInvoiceCreated = $subscriptionData['latest_invoice']['created'] ?? null;
                 $dateSuspended = $timeLastInvoiceCreated ? DateTimeHelper::toDateTime($timeLastInvoiceCreated) : null;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
@@ -437,11 +438,7 @@ abstract class Gateway extends BaseGateway
     protected function buildRequestData(Transaction $transaction): array
     {
         $this->configureStripeClient();
-        $currency = Commerce::getInstance()->getCurrencies()->getCurrencyByIso($transaction->paymentCurrency);
 
-        if (!$currency) {
-            throw new NotSupportedException('The currency “' . $transaction->paymentCurrency . '” is not supported!');
-        }
 
         $metadata = [
             'order_id' => $transaction->getOrder()->id,
@@ -456,7 +453,7 @@ abstract class Gateway extends BaseGateway
         }
 
         $request = [
-            'amount' => $transaction->paymentAmount * (10 ** $currency->minorUnit),
+            'amount' => $transaction->paymentAmount * (10 ** 2),
             'currency' => $transaction->paymentCurrency,
             'description' => Craft::t('commerce-stripe', 'Order') . ' #' . $transaction->orderId,
             'metadata' => $metadata,
